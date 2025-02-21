@@ -114,7 +114,7 @@ class SimpleReplayBuffer:
         """Return a batch of transitions."""
         assert self._num_transitions > 1, "Replay buffer only has 1 time step!"
         batch_size = self._batch_size if batch_size is None else batch_size
-
+        # print(1, self._batch_size, batch_size)
         filter_transitions = self._filter_transitions if filter_transitions is None else filter_transitions
         with_replacement = self._with_replacement if with_replacement is None else with_replacement
 
@@ -123,7 +123,9 @@ class SimpleReplayBuffer:
             idxs = np.random.randint(1, len(self), size=batch_size)
         else:
             # do not use np.random.choice, it gets much slower as the size increases
+            # print(2, len(self), batch_size)
             idxs = np.array(random.sample(range(1, len(self)), batch_size), dtype=np.int64)
+
 
         # Shift to correct start
         idxs = (idxs + self._next_idx) % self._num_transitions
@@ -165,7 +167,7 @@ class SimpleReplayBuffer:
                                        0).astype('float32')
             if np.isscalar(value):
                 value = np.full(spec.shape, value, spec.dtype)
-            assert spec.shape == value.shape and spec.dtype == value.dtype
+            assert spec.shape == value.shape and spec.dtype == value.dtype, f"{spec.shape}, {value.shape} mismatch or {spec.dtype}, {value.dtype} mismatch"
             np.copyto(self._replay_buffer[spec.name][self._next_idx], value)
 
         np.copyto(self._replay_buffer['step_type'][self._next_idx],

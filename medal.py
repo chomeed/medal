@@ -83,6 +83,8 @@ class Workspace:
         self.train_env, self.eval_env, self.reset_states, self.goal_states, self.forward_demos, self.backward_demos = env_loader.make(self.cfg.env_name, self.cfg.frame_stack,
                                   self.cfg.action_repeat)
         # create replay buffer
+        print(self.train_env.observation_spec())
+        print(self.train_env.action_spec())
         data_specs = (self.train_env.observation_spec(),
                       self.train_env.action_spec(),
                       specs.Array((1,), np.float32, 'reward'),
@@ -95,7 +97,7 @@ class Workspace:
                                                        batch_size=self.cfg.forward_agent.batch_size,
                                                        replay_dir=self.work_dir / 'forward_buffer',
                                                        discount=self.cfg.forward_agent.discount,
-                                                       filter_transitions=True,
+                                                    #    filter_transitions=True,
                                                        with_replacement=self.cfg.forward_agent.with_replacement,)
 
             self.replay_storage_b = SimpleReplayBuffer(data_specs=data_specs,
@@ -103,21 +105,21 @@ class Workspace:
                                                        batch_size=self.cfg.backward_agent.batch_size,
                                                        replay_dir=self.work_dir / 'backward_buffer',
                                                        discount=self.cfg.backward_agent.discount,
-                                                       filter_transitions=True,
+                                                    #    filter_transitions=True,
                                                        with_replacement=self.cfg.backward_agent.with_replacement,)
             self.backward_pos = SimpleReplayBuffer(data_specs=data_specs,
                                                    max_size=self.cfg.discriminator.positive_buffer_size,
                                                    batch_size=self.cfg.discriminator.batch_size // 2,
                                                    replay_dir=self.work_dir / 'backward_buffer_pos',
-                                                   filter_transitions=False,
-                                                   with_replacement=False,)
+                                                #    filter_transitions=False,
+                                                   with_replacement=True,)
 
             self.backward_neg = SimpleReplayBuffer(data_specs=data_specs,
                                                    max_size=self.cfg.discriminator.negative_buffer_size,
                                                    batch_size=self.cfg.discriminator.batch_size // 2,
                                                    replay_dir=self.work_dir / 'backward_buffer_neg',
-                                                   filter_transitions=False,
-                                                   with_replacement=False,)
+                                                #    filter_transitions=False,
+                                                   with_replacement=True,)
         else:
             self.replay_storage_f = ReplayBufferStorage(data_specs,
                                                         self.work_dir / 'forward_buffer')

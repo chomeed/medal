@@ -1,9 +1,9 @@
 import numpy as np
-import gym
+import gymnasium as gym
 import dm_env
 from dm_env import specs
-from bsuite.utils.gym_wrapper import DMEnvFromGym, space2spec
-
+# from bsuite.utils.gym_wrapper import DMEnvFromGym, space2spec
+from .gym_wrapper import DMEnvFromGym, space2spec
 from .timestep import ExtendedTimeStep
 
 
@@ -21,6 +21,7 @@ class DMEnvFromGymWrapper(DMEnvFromGym):
         self._observation_spec = space2spec(self.gym_env.observation_space,
                                             name='observation')
         self._action_spec = space2spec(self.gym_env.action_space, name='action')
+        print(self._action_spec)
         self._reset_next_step = True
 
     def is_successful(self, obs):
@@ -33,7 +34,7 @@ class DMEnvFromGymWrapper(DMEnvFromGym):
         return reward
 
     def render(self, mode="rgb_array"):
-        return self.gym_env.render(mode=mode)
+        return self.gym_env.render()
 
 class ActionRepeatWrapper(dm_env.Environment):
     def __init__(self, env, num_repeats):
@@ -176,8 +177,8 @@ class ActionScaleWrapper(dm_env.Environment):
     if not isinstance(action_spec, specs.BoundedArray):
       raise ValueError(_ACTION_SPEC_MUST_BE_BOUNDED_ARRAY.format(action_spec))
 
-    minimum = np.array(minimum)
-    maximum = np.array(maximum)
+    minimum = np.array(minimum, dtype=np.float32)
+    maximum = np.array(maximum, dtype=np.float32)
     shape = action_spec.shape
     orig_minimum = action_spec.minimum
     orig_maximum = action_spec.maximum
